@@ -1,12 +1,11 @@
 use std::fmt::{Display, Error, Formatter};
 use std::rc::Rc;
-use std::result::Result;
 
 pub trait Stack<T> {
     fn empty() -> Self;
     fn is_empty(&self) -> bool;
 
-    fn cons(&self, v: T) -> Self;
+    fn cons(&self, x: T) -> Self;
     fn head(&self) -> T;
     fn tail(&self) -> Self;
 
@@ -18,15 +17,15 @@ pub trait Stack<T> {
         }
     }
 
-    fn update(&self, i: usize, y: T) -> Self where Self: Sized {
+    fn update(&self, i: usize, x: T) -> Self where Self: Sized {
         if self.is_empty() {
             panic!("index out of bounds");
         }
 
         if i == 0 {
-            self.tail().cons(y)
+            self.tail().cons(x)
         } else {
-            self.tail().update(i - 1, y).cons(self.head())
+            self.tail().update(i - 1, x).cons(self.head())
         }
     }
 }
@@ -51,16 +50,16 @@ impl<T: Clone> Stack<T> for List<T> {
         }
     }
 
-    fn cons(&self, v: T) -> List<T> {
+    fn cons(&self, x: T) -> List<T> {
         match *self {
-            Cons(ref h, ref t) => Cons(v, Rc::new(Cons(h.clone(), t.clone()))),
-            Nil => Cons(v, Rc::new(Nil))
+            Cons(ref h, ref t) => Cons(x, Rc::new(Cons(h.clone(), t.clone()))),
+            Nil => Cons(x, Rc::new(Nil))
         }
     }
 
     fn head(&self) -> T {
         match *self {
-            Cons(ref v, _) => v.clone(),
+            Cons(ref h, _) => h.clone(),
             Nil => panic!("head of empty list")
         }
     }
