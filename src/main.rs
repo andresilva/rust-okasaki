@@ -2,6 +2,7 @@ extern crate okasaki;
 
 use std::rc::Rc;
 
+use okasaki::map::*;
 use okasaki::set::*;
 use okasaki::stack::*;
 use okasaki::stack::List::*;
@@ -40,8 +41,18 @@ fn tree() {
     println!("{}", t2);
 }
 
+fn map() {
+    let m: Tree<(String, usize)> = Map::empty();
+    let m2 = m.bind("hello".to_string(), 0)
+        .bind("world".to_string(), 1)
+        .bind("foo".to_string(), 2)
+        .bind("bar".to_string(), 3);
+
+    println!("{:?}", m2);
+}
 
 fn main() {
     list();
     tree();
+    map();
 }
