@@ -5,8 +5,8 @@ use tree::Tree::{Node, Tip};
 
 pub trait Set<T> {
     fn empty() -> Self;
-    fn insert(&self, x: T) -> Self;
-    fn member(&self, x: T) -> bool;
+    fn insert(&self, T) -> Self;
+    fn member(&self, T) -> bool;
 }
 
 impl<T: Ord + Clone> Set<T> for Tree<T> {

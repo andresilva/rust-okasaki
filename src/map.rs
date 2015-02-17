@@ -5,8 +5,8 @@ use tree::Tree::{Node, Tip};
 
 pub trait Map<K, V> {
     fn empty() -> Self;
-    fn bind(&self, k: K, v: V) -> Self;
-    fn lookup(&self, K: K) -> V;
+    fn bind(&self, K, V) -> Self;
+    fn lookup(&self, K) -> V;
 }
 
 impl<K: Ord + Clone, V: Clone> Map<K, V> for Tree<(K, V)> {
