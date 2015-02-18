@@ -17,9 +17,7 @@ impl<T: Display> Display for Tree<T> {
                     try!(_loop(f, r, true, &(indent.to_string() + if right { "        " } else { " |      " })));
 
                     try!(write!(f, "{}", indent));
-
                     try!(if right { write!(f, "{}", " /") } else { write!(f, "{}", " \\") });
-
                     try!(write!(f, "{}", "----- "));
 
                     try!(writeln!(f, "{}", *v));

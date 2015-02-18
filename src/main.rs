@@ -2,6 +2,7 @@ extern crate okasaki;
 
 use std::rc::Rc;
 
+use okasaki::heap::*;
 use okasaki::map::*;
 use okasaki::set::*;
 use okasaki::stack::*;
@@ -51,8 +52,17 @@ fn map() {
     println!("{:?}", m2);
 }
 
+fn heap() {
+    let h: LeftistHeap<usize> = Heap::empty();
+    let h2: LeftistHeap<usize> = h.insert(10).insert(9).insert(8).insert(11).insert(1).insert(4).insert(12);
+
+    println!("{:?}", h2);
+    println!("{}", h2);
+}
+
 fn main() {
     list();
     tree();
     map();
+    heap();
 }
