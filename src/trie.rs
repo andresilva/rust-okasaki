@@ -151,7 +151,9 @@ fn patricia_trie() {
         .bind("water".to_string(), 2)
         .bind("slower".to_string(), 3)
         .bind("tester".to_string(), 4)
-        .bind("te".to_string(), 5);
+        .bind("te".to_string(), 5)
+        .bind("toast".to_string(), 6)
+        .bind("toad".to_string(), 7);
 
     assert_eq!(t2.lookup("test".to_string()), 0);
     assert_eq!(t2.lookup("slow".to_string()), 1);
@@ -159,4 +161,6 @@ fn patricia_trie() {
     assert_eq!(t2.lookup("slower".to_string()), 3);
     assert_eq!(t2.lookup("tester".to_string()), 4);
     assert_eq!(t2.lookup("te".to_string()), 5);
+    assert_eq!(t2.lookup("toast".to_string()), 6);
+    assert_eq!(t2.lookup("toad".to_string()), 7);
 }

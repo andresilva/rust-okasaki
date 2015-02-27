@@ -83,6 +83,12 @@ fn trie() {
 
     println!("{:?}", t4);
     println!("{}", t4);
+
+    let t5 = t2.bind("toast".to_string(), 6)
+        .bind("toad".to_string(), 7);
+
+    println!("{:?}", t5);
+    println!("{}", t5);
 }
 
 fn main() {
