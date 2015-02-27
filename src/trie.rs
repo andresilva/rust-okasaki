@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::fmt::{Display, Error, Formatter};
 
 use map::Map;
 
@@ -101,6 +102,44 @@ impl<T: Clone> Map<String, T> for PatriciaTrie<T> {
                 }
             }
         }
+    }
+}
+
+impl<T: Display> Display for PatriciaTrie<T> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        fn aux<T: Display>(t: &PatriciaTrie<T>, mut indent: String, last: bool, f: &mut Formatter) -> Result<(), Error> {
+            match *t {
+                Tip => writeln!(f, "()"),
+                Node { ref key, ref value, ref children } => {
+                    try!(write!(f, "{}", indent));
+
+                    if last {
+                        try!(write!(f, "\\-"));
+                        indent = indent + "  ";
+                    } else {
+                        try!(write!(f, "|-"));
+                        indent = indent + "| ";
+                    }
+
+                    try!(write!(f, "{}", key));
+
+                    match *value {
+                        Some(ref v) => try!(write!(f, " => ({})", v)),
+                        _ => ()
+                    }
+
+                    try!(writeln!(f, ""));
+
+                    for (i, (_, c)) in children.iter().enumerate() {
+                        try!(aux(c, indent.clone(), i == children.len() - 1, f));
+                    }
+
+                    Result::Ok(())
+                }
+            }
+        }
+
+        aux(self, "".to_string(), true, f)
     }
 }
 

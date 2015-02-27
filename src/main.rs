@@ -71,6 +71,18 @@ fn trie() {
         .bind("te".to_string(), 5);
 
     println!("{:?}", t2);
+    println!("{}", t2);
+
+    let t3 = t.bind("test".to_string(), 0)
+        .bind("team".to_string(), 1);
+
+    println!("{:?}", t3);
+    println!("{}", t3);
+
+    let t4 = t3.bind("toast".to_string(), 3);
+
+    println!("{:?}", t4);
+    println!("{}", t4);
 }
 
 fn main() {
