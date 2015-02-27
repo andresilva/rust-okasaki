@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 use std::fmt::{Display, Error, Formatter};
+use std::rc::Rc;
 
 use map::Map;
 
 #[derive(Clone, Debug)]
 pub enum PatriciaTrie<T> {
     Tip,
-    Node { key: String, value: Option<T>, children: HashMap<char, PatriciaTrie<T>> }
+    Node { key: String, value: Option<T>, children: HashMap<char, Rc<PatriciaTrie<T>>> }
 }
 
 use trie::PatriciaTrie::{Tip, Node};
@@ -55,7 +56,7 @@ impl<T: Clone> Map<String, T> for PatriciaTrie<T> {
                     let k1 = &k[i..];
 
                     let mut children = children.clone();
-                    children.insert(k1.char_at(0), add_children(self, k1.to_string(), v));
+                    children.insert(k1.char_at(0), Rc::new(add_children(self, k1.to_string(), v)));
 
                     Node { key: key.clone(), value: value.clone(), children: children }
                 }
@@ -63,7 +64,7 @@ impl<T: Clone> Map<String, T> for PatriciaTrie<T> {
                 else if i == k.len() {
                     let k1 = &key[i..];
                     let children = hashmap![
-                        k1.char_at(0) => Node { key: k1.to_string(), value: value.clone(), children: children.clone() }];
+                        k1.char_at(0) => Rc::new(Node { key: k1.to_string(), value: value.clone(), children: children.clone() })];
                     Node { key: k, value: Some(v), children: children }
                 }
                 // split at longest common prefix
@@ -74,8 +75,8 @@ impl<T: Clone> Map<String, T> for PatriciaTrie<T> {
                     let k2 = &k[i..];
 
                     let children = hashmap![
-                        k1.char_at(0) => Node { key: k1.to_string(), value: value.clone(), children: children.clone() },
-                        k2.char_at(0) => Node { key: k2.to_string(), value: Some(v), children: hashmap![] }];
+                        k1.char_at(0) => Rc::new(Node { key: k1.to_string(), value: value.clone(), children: children.clone() }),
+                        k2.char_at(0) => Rc::new(Node { key: k2.to_string(), value: Some(v), children: hashmap![] })];
 
                     Node { key: common.to_string(), value: None, children: children }
                 }
