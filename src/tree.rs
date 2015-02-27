@@ -11,83 +11,39 @@ pub enum Tree<T> {
 
 use tree::Tree::{Node, Tip};
 
-impl<T: Display + PartialEq + Clone> Display for Tree<T> {
+impl<T: Display> Display for Tree<T> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        fn depth<T>(t: &Tree<T>) -> usize {
+        fn aux<T: Display>(f: &mut Formatter, t: &Tree<T>, right: bool, indent: &str) -> Result<(), Error> {
             match *t {
-                Tip => 0,
-                Node(ref l, _, ref r) => 1 + max(depth(l), depth(r))
-            }
-        }
+                Node(ref l, ref x, ref r) => {
+                    try!(aux(f, r, true, &(indent.to_string() + if right { "        " } else { " |      " })));
 
-        fn print_whitespace(n: usize, f: &mut Formatter) -> Result<(), Error> {
-            for _ in (0..n) {
-                try!(write!(f, " "));
-            }
-            Result::Ok(())
-        }
+                    try!(write!(f, "{}", indent));
+                    try!(if right { write!(f, "{}", " /") } else { write!(f, "{}", " \\") });
+                    try!(write!(f, "{}", "----- "));
 
-        fn aux<T: Clone + Display + PartialEq>(nodes: Vec<Tree<T>>, level: usize, max_level: usize, f: &mut Formatter) -> Result<(), Error> {
-            if nodes.iter().all(|n| *n == Tip) { return Result::Ok(()) }
+                    try!(writeln!(f, "({})", x));
 
-            let floor = max_level - level;
-            let edge_lines = 2.pow(max(floor - 1, 0)) as usize;
-            let first_spaces = 2.pow(floor) - 1 as usize;
-            let between_spaces = 2.pow(floor + 1) - 1 as usize;
+                    aux(f, l, false, &(indent.to_string() + if right { " |      " } else { "        " }))
+                },
+                Tip => {
+                    try!(write!(f, "{}", indent));
+                    try!(if right { write!(f, "{}", " /") } else { write!(f, "{}", " \\") });
+                    try!(write!(f, "{}", "----- "));
 
-            try!(print_whitespace(first_spaces, f));
-
-            let new_nodes =
-                nodes.iter().fold(vec![], |mut acc, n| {
-                    let ret =
-                        match *n {
-                            Node(ref l, ref v, ref r) => {
-                                write!(f, "{}", v);
-                                acc.push((**l).clone());
-                                acc.push((**r).clone());
-                                acc
-                            },
-                            Tip => {
-                                write!(f, " ");
-                                acc.push(Tip);
-                                acc.push(Tip);
-                                acc
-                            }
-                        };
-
-                    print_whitespace(between_spaces, f);
-
-                    ret
-                });
-
-            try!(writeln!(f, ""));
-
-            for i in (1..(edge_lines + 1)) {
-                for node in nodes.iter() {
-                    try!(print_whitespace(first_spaces - i, f));
-                    match *node {
-                        Tip => { try!(print_whitespace(edge_lines + edge_lines + i + 1, f)); },
-                        Node(ref l, _, ref r) => {
-                            if **l != Tip { try!(write!(f, "/")); }
-                            else { try!(write!(f, " ")); }
-
-                            try!(print_whitespace(i + i - 1, f));
-
-                            if **r != Tip { try!(write!(f, "\\")); }
-                            else { try!(write!(f, " ")); }
-
-                            try!(print_whitespace(edge_lines + edge_lines - 1, f));
-                        }
-                    }
+                    writeln!(f, "{}", "()")
                 }
-
-                try!(writeln!(f, ""));
             }
-
-            aux(new_nodes, level + 1, max_level, f)
         }
 
-        aux(vec![(*self).clone()], 1, depth(self), f)
+        match *self {
+            Node(ref l, ref x, ref r) => {
+                try!(aux(f, r, true, ""));
+                try!(writeln!(f, "({})", x));
+                aux(f, l, false, "")
+            },
+            Tip => Result::Ok(())
+        }
     }
 }
 
