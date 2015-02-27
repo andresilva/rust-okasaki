@@ -5,9 +5,10 @@ Purely Functional Data Structures in Rust as per Okasaki [[1]].
 ## Implemented data structures
 
 * Set
-  * Tree Set  
+  * Tree Set
 * Map
   * Tree Map
+  * Patricia Trie *(not present on the book)*
 * Stack
   * List
 * Heap

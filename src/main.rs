@@ -8,6 +8,7 @@ use okasaki::set::*;
 use okasaki::stack::*;
 use okasaki::stack::List::*;
 use okasaki::tree::Tree;
+use okasaki::trie::PatriciaTrie;
 
 fn list() {
     let l: List<usize> = Stack::empty();
@@ -60,9 +61,22 @@ fn heap() {
     println!("{}", h2);
 }
 
+fn trie() {
+    let t: PatriciaTrie<usize> = Map::empty();
+    let t2 = t.bind("test".to_string(), 0)
+        .bind("slow".to_string(), 1)
+        .bind("water".to_string(), 2)
+        .bind("slower".to_string(), 3)
+        .bind("tester".to_string(), 4)
+        .bind("te".to_string(), 5);
+
+    println!("{:?}", t2);
+}
+
 fn main() {
     list();
     tree();
     map();
     heap();
+    trie();
 }
