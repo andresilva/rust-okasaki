@@ -25,7 +25,7 @@ fn list() {
                 let l: List<List<usize>> = Stack::empty();
                 l.cons(Nil)
             }
-            Cons(h, ref t) => Cons(Cons(h, (*t).clone()), Rc::new(suffixes((**t).clone())))
+            Cons(h, ref t) => Cons(Cons(h, t.clone()), Rc::new(suffixes((**t).clone())))
         }
     }
 

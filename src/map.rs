@@ -23,7 +23,7 @@ impl<K: Ord + Clone, V: Clone> Map<K, V> for Tree<(K, V)> {
             Node(ref l, (ref k1, ref v1), ref r) if k > *k1 =>
                 Node(l.clone(), (k1.clone(), v1.clone()), Rc::new(r.bind(k, v))),
             _ =>
-                (*self).clone()
+                self.clone()
         }
     }
 
@@ -32,7 +32,7 @@ impl<K: Ord + Clone, V: Clone> Map<K, V> for Tree<(K, V)> {
             Tip => panic!("element does not exist"),
             Node(ref l, (ref k, _), _) if x < *k => l.lookup(x),
             Node(_, (ref k, _), ref r) if x > *k => r.lookup(x),
-            Node(_, (_, ref v), _) => (*v).clone()
+            Node(_, (_, ref v), _) => v.clone()
         }
     }
 }

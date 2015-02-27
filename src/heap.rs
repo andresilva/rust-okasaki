@@ -41,8 +41,8 @@ impl<T: Ord + Clone> Heap<T> for LeftistHeap<T> {
         }
 
         fn make_node<T: Clone>(x: T, l: Rc<LeftistHeap<T>>, r: Rc<LeftistHeap<T>>) -> LeftistHeap<T> {
-            if rank(&*l) >= rank(&*r) { Node(rank(&*r) + 1, x.clone(), l.clone(), r.clone()) }
-            else { Node(rank(&*l) + 1, x.clone(), r.clone(), l.clone()) }
+            if rank(&l) >= rank(&r) { Node(rank(&r) + 1, x.clone(), l.clone(), r.clone()) }
+            else { Node(rank(&l) + 1, x.clone(), r.clone(), l.clone()) }
         }
 
         match (self, h) {
@@ -80,18 +80,18 @@ impl<T: Ord + Clone> Heap<T> for LeftistHeap<T> {
 
 impl<T: Display> Display for LeftistHeap<T> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        fn _loop<T: Display>(f: &mut Formatter, t: &LeftistHeap<T>, right: bool, indent: &str) -> Result<(), Error> {
+        fn aux<T: Display>(f: &mut Formatter, t: &LeftistHeap<T>, right: bool, indent: &str) -> Result<(), Error> {
             match *t {
                 Node(ref rank, ref x, ref l, ref r) => {
-                    try!(_loop(f, r, true, &(indent.to_string() + if right { "        " } else { " |      " })));
+                    try!(aux(f, r, true, &(indent.to_string() + if right { "        " } else { " |      " })));
 
                     try!(write!(f, "{}", indent));
                     try!(if right { write!(f, "{}", " /") } else { write!(f, "{}", " \\") });
                     try!(write!(f, "{}", "----- "));
 
-                    try!(writeln!(f, "(#{}, {})", *rank, *x));
+                    try!(writeln!(f, "(#{}, {})", rank, x));
 
-                    _loop(f, l, false, &(indent.to_string() + if right { " |      " } else { "        " }))
+                    aux(f, l, false, &(indent.to_string() + if right { " |      " } else { "        " }))
                 },
                 Tip => {
                     try!(write!(f, "{}", indent));
@@ -105,9 +105,9 @@ impl<T: Display> Display for LeftistHeap<T> {
 
         match *self {
             Node(ref rank, ref x, ref l, ref r) => {
-                try!(_loop(f, r, true, ""));
-                try!(writeln!(f, "(#{}, {})", *rank, *x));
-                _loop(f, l, false, "")
+                try!(aux(f, r, true, ""));
+                try!(writeln!(f, "(#{}, {})", rank, x));
+                aux(f, l, false, "")
             },
             Tip => Result::Ok(())
         }

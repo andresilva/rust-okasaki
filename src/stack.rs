@@ -11,7 +11,7 @@ pub trait Stack<T> {
 
     fn append(&self, y: &Self) -> Self where Self: Clone + Sized {
         if self.is_empty() {
-            (*y).clone()
+            y.clone()
         } else {
             self.tail().append(y).cons(self.head())
         }
@@ -79,8 +79,8 @@ impl<T: Display> Display for List<T> {
         fn _loop<T: Display>(f: &mut Formatter, l: &List<T>, first: bool) -> Result<(), Error> {
             match *l {
                 Cons(ref h, ref t) => {
-                    if first { try!(write!(f, "{}", *h)); }
-                    else { try!(write!(f, ", {}", *h)); }
+                    if first { try!(write!(f, "{}", h)); }
+                    else { try!(write!(f, ", {}", h)); }
 
                     _loop(f, t, false)
                 },

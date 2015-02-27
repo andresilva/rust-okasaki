@@ -19,7 +19,7 @@ impl<T: Ord + Clone> Set<T> for Tree<T> {
             Tip => Node(Rc::new(Tip), x, Rc::new(Tip)),
             Node(ref l, ref v, ref r) if x < *v => Node(Rc::new(l.insert(x)), v.clone(), r.clone()),
             Node(ref l, ref v, ref r) if x > *v => Node(l.clone(), v.clone(), Rc::new(r.insert(x))),
-            _ => (*self).clone()
+            _ => self.clone()
         }
     }
 
