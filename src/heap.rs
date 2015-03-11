@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::fmt::{Display, Error, Formatter};
 use std::rc::Rc;
 
@@ -114,10 +115,147 @@ impl<T: Display> Display for LeftistHeap<T> {
     }
 }
 
+macro_rules! vecdeque {
+    ($( $v: expr ),*) => {{
+         let mut vec = ::std::collections::VecDeque::new();
+         $( vec.push_back($v); )*
+         vec
+    }}
+}
+
+pub type BinomialHeap<T> = VecDeque<Rc<BinomialTree<T>>>;
+
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct BinomialTree<T>(usize, T, BinomialHeap<T>);
+
+fn link<T: Clone + Ord>(t1: &BinomialTree<T>, t2: &BinomialTree<T>) -> BinomialTree<T> {
+    let BinomialTree(r, ref x1, ref c1) = *t1;
+    let BinomialTree(_, ref x2, ref c2) = *t2;
+
+    if x1 <= x2 {
+        let mut c = c1.clone();
+        c.push_front(Rc::new(t2.clone()));
+        BinomialTree(r + 1, x1.clone(), c)
+    } else {
+        let mut c = c2.clone();
+        c.push_front(Rc::new(t1.clone()));
+        BinomialTree(r + 1, x2.clone(), c)
+    }
+}
+
+fn rank<T>(t: &BinomialTree<T>) -> usize {
+    let BinomialTree(r, _, _) = *t;
+    r
+}
+
+fn root<T: Clone>(t: &BinomialTree<T>) -> T {
+    let BinomialTree(_, ref x, _) = *t;
+    x.clone()
+}
+
+fn insert_tree<T: Clone + Ord>(h: &BinomialHeap<T>, t: &BinomialTree<T>) -> BinomialHeap<T> {
+    match h.front() {
+        Some(t2) => {
+            let mut h2 = h.clone();
+
+            if rank(t) < rank(t2) {
+                h2.push_front(Rc::new(t.clone()));
+                h2
+            } else {
+                insert_tree(&h2.split_off(1), &link(t, t2))
+            }
+        },
+        _ => vecdeque![Rc::new(t.clone())],
+    }
+}
+
+fn remove_min_tree<T: Clone + Ord>(h: &BinomialHeap<T>) -> (BinomialTree<T>, BinomialHeap<T>) {
+    match h.len() {
+        0 => panic!("remove tree from empty heap"),
+        1 => {
+            ((**h.front().unwrap()).clone(), vecdeque![])
+        },
+        _ => {
+            let t = h.front().unwrap();
+            let ts = h.clone().split_off(1);
+
+            let (t1, mut ts1) = remove_min_tree(&ts);
+
+            if (root(t) < root(&t1)) {
+                ((**t).clone(), ts)
+            } else {
+                ts1.push_front(t.clone());
+                (t1, ts1)
+            }
+        }
+    }
+}
+
+impl<T: Ord + Clone> Heap<T> for BinomialHeap<T> {
+    fn empty() -> BinomialHeap<T> {
+        vecdeque![]
+    }
+
+    fn is_empty(&self) -> bool {
+        self.is_empty()
+    }
+
+    fn merge(&self, h: &BinomialHeap<T>) -> BinomialHeap<T> {
+        match (self.front(), h.front()) {
+            (_, None) => self.clone(),
+            (None, _) => h.clone(),
+            (Some(t1), Some(t2)) => {
+                if rank(t1) < rank(t2) {
+
+                    let mut h = self.clone().split_off(1).merge(h);
+                    h.push_front(t1.clone());
+                    h
+                } else if rank(t2) < rank(t1) {
+
+                    let mut h = self.merge(&h.clone().split_off(1));
+                    h.push_front(t2.clone());
+                    h
+                } else {
+                    insert_tree(
+                        &self.clone().split_off(1).merge(&h.clone().split_off(2)),
+                        &link(t1, t2))
+                }
+            }
+        }
+    }
+
+    fn insert(&self, x: T) -> BinomialHeap<T> {
+        insert_tree(self, &BinomialTree(0, x, vecdeque![]))
+    }
+
+    fn find_min(&self) -> T {
+        let (t, _) = remove_min_tree(self);
+        root(&t)
+    }
+
+    fn delete_min(&self) -> BinomialHeap<T> {
+        let (BinomialTree(_, _, ts1), ts2) = remove_min_tree(self);
+        let ts1: BinomialHeap<T> = ts1.into_iter().rev().collect();
+        ts1.merge(&ts2)
+    }
+}
+
 #[test]
 fn leftistheap() {
     let h: LeftistHeap<usize> = Heap::empty();
     let h2: LeftistHeap<usize> = h.insert(10).insert(9).insert(8).insert(11).insert(1).insert(4);
+
+    assert!(h.is_empty());
+    assert!(!h2.is_empty());
+
+    assert_eq!(h2.find_min(), 1);
+    assert_eq!(h2.delete_min(), h.insert(10).insert(9).insert(8).insert(11).insert(4));
+}
+
+#[test]
+fn binomialheap() {
+    let h: BinomialHeap<usize> = Heap::empty();
+    let h2: BinomialHeap<usize> = h.insert(10).insert(9).insert(8).insert(11).insert(1).insert(4);
 
     assert!(h.is_empty());
     assert!(!h2.is_empty());

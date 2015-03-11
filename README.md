@@ -13,5 +13,6 @@ Purely Functional Data Structures in Rust as per Okasaki [[1]].
   * List
 * Heap
   * Leftist Heap
+  * Binomial Heap
 
 [1]: http://www.cs.cmu.edu/~rwh/theses/okasaki.pdf
